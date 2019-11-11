@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DashBoard</title>
+    <script src="static/js/socket.io.js"></script>
+    <script src="static/js/jquery-3.1.1.min.js"></script>
+    <script src="static/js/highcharts.js"></script>
+    <script src="static/js/exporting.js"></script>
+    <script type="text/javascript" charset="utf-8">
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    socket.on('connect', function() {
+        socket.emit('test_connect', {data: 'I\'m connected!'});
+    });
+
+    socket.on('test_message',function(message){
+        console.log(message);
+        var obj = eval(message);
+        var result = obj["data"].split(",");
+        $('#female').html(result[0]);
+        $('#male').html(result[1]);
+    });
+
+    socket.on('connected',function(){
+        console.log('connected');
+    });
+
+    socket.on('disconnect', function () {
+        console.log('disconnect');
+    });
+    </script>
+</head>
+<body>
+<div>
+    <b>Female: </b><b id="female"></b>
+    <b>Male: </b><b id="male"></b>
+</div>
+<div id="container" style="width: 600px;height: 400px;"></div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
+
+    Highcharts.chart('container', {
+        chart: {
+            type: 'spline',
+            animation: Highcharts.svg,
+            marginRight: 10,
+            events: {
+                load: function () {
+                    var series1 = this.series[0];
+                    var series2 = this.series[1];
+                    setInterval(function () {
+                        var x = (new Date()).getTime(), // current time
+                        count1 = $('#female').text();
+                        y = parseInt(count1);
+                        series1.addPoint([x, y], true, true);
+
+                        count2 = $('#male').text();
+                        z = parseInt(count2);
+                        series2.addPoint([x, z], true, true);
+                    }, 1000);
+                }
+            }
+        },
+        title: {
+            text: 'Real-time Analysis of Consumers By Gender'
+
+        },
+        xAxis: {
+            type: 'datetime',
+            tickPixelInterval: 100
+        },
+        yAxis: {
+            title: {
+                text: 'Number'
+            },
+            plotLines: [{
+                value: 0,
+                width: 1,
+                color: '#808080'
+            }]
+        },
+        tooltip: {
+            formatter: function () {
+                return '<b>' + this.series.name + '</b><br/>' +
+                    Highcharts.dateFormat('%H:%M:%S', this.x) + '<br/>' +
+                    Highcharts.numberFormat(this.y, 2);
+            }
+        },
+        legend: {
+            enabled: true
+        },
+        exporting: {
+            enabled: true
+        },
+        series: [{
+            name: 'Female Consumers',
+            data: (function () {
+                // generate an array of random data
+                var data = [],
+                    time = (new Date()).getTime(),
+                    i;
+
+                for (i = -100; i <= 0; i += 1) {
+                    data.push({
+                        x: time + i * 1000,
+                        y: Math.random()
+                    });
+                }
+                return data;
+            }())
+        },
+        {
+            name: 'Male Consumers',
+            data: (function () {
+                // generate an array of random data
+                var data = [],
+                    time = (new Date()).getTime(),
+                    i;
+
+                for (i = -100; i <= 0; i += 1) {
+                    data.push({
+                        x: time + i * 1000,
+                        y: Math.random()
+                    });
+                }
+                return data;
+            }())
+        }]
+    });
+});
+</script>
+</body>
+</html>
