@@ -1,4 +1,4 @@
-# Clickstream-data-analytics-using-Kafka-and-Spark
+# Clickstream Data Analytics Using Kafka and Spark
 - Developed Kafka streaming pipeline to simulate Consumer Real-time Clickstream dataset using HDFS storage
 on AWS
 - Designed internal data flow in Apache Kafka to update real-time customer behavior analysis with
